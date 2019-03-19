@@ -1,8 +1,7 @@
 import { init } from "snabbdom";
 import rlite from "rlite-router";
 import { App, Boop, Error, Body } from "./components";
-import '../styles.css';
-
+import "../styles.css";
 
 const patch = init([
   require("snabbdom/modules/class").default, // makes it easy to toggle classes
@@ -12,8 +11,29 @@ const patch = init([
 ]);
 
 let currentNode = null;
+
+const findAndReplaceKey = (node, key) => {
+  console.log(node);
+  let knode;
+
+  if (node.key === key) {
+    knode = node;
+  } else {
+    node.children.forEach(n => {
+      if (n.key === key) {
+        knode = n;
+      } else {
+        knode = findAndReplaceKey(n, key);
+      }
+    });
+    return knode;
+  }
+};
 // custom patch function to pass to components
 const updateDOM = newNode => {
+  if (newNode === false) {
+    return findAndReplaceKey(currentNode, "app");
+  }
   if (currentNode == null) {
     currentNode = document.querySelector("#app");
   }
@@ -21,29 +41,4 @@ const updateDOM = newNode => {
   currentNode = newNode;
 };
 
-const route = rlite(notFound, {
-  // Default route
-  "": function() {
-    return updateDOM(Body({page:'home'},updateDOM))
-  },
-  // #inbox
-  boop: function() {
-    return updateDOM(Body({page:'nothome'},updateDOM))
-  }
-});
-
-function notFound() {
-  return updateDOM(Error())
-}
-
-// Hash-based routing
-function processHash() {
-  const hash = location.hash || "#";
-
-  // Do something useful with the result of the route
-  route(hash.slice(1));
-  //run()
-}
-
-window.addEventListener("hashchange", processHash);
-processHash();
+updateDOM(Body({ page: "home" }, updateDOM));

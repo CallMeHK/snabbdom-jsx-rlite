@@ -12,11 +12,12 @@ const List = props => (
 );
 const App = (props, updateDOM) => {
   function onClick() {
+    console.log(updateDOM(false))
     let newItem = ["beer", "cheese", "soup"][Math.floor(Math.random() * 2.999)];
     updateDOM(App({ list: [...props.list, newItem] }, updateDOM));
   }
   return (
-    <div>
+    <div key='app'>
       <Greeting name="Ty" />
       <button on-click={onClick}>Add Item</button>
       <p>this is like, writing react, which is super cool.</p>
