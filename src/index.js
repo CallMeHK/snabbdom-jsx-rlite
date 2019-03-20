@@ -10,30 +10,35 @@ const patch = init([
   require("snabbdom/modules/eventlisteners").default // attaches event listeners
 ]);
 
+function setToValue(obj, value, path) {
+  let i;
+  for (i = 0; i < path.length - 1; i++)
+      obj = obj[path[i]];
+
+  obj[path[i]] = value;
+}
+
 let currentNode = null;
-
-const findAndReplaceKey = (node, key) => {
-  console.log(node);
-  let knode;
-
-  if (node.key === key) {
-    knode = node;
+// const currentNodeConst = () => Object.create(currentNode)
+const findAndReplaceKey = (node, key, path, comp) => {
+  let newNode
+  if (node.key === "app") {
+    newNode = JSON.parse(JSON.stringify(currentNode))
+    setToValue(newNode, comp, path)
   } else {
-    node.children.forEach(n => {
-      if (n.key === key) {
-        knode = n;
-      } else {
-        knode = findAndReplaceKey(n, key);
-      }
-    });
-    return knode;
+    if (node.children !== undefined) {
+      node.children.forEach((n, i) => {
+        newNode = findAndReplaceKey(n, key, [...path, 'children', i],comp);
+      });
+    }
   }
+  return newNode
 };
 // custom patch function to pass to components
-const updateDOM = newNode => {
-  if (newNode === false) {
-    return findAndReplaceKey(currentNode, "app");
-  }
+const updateDOM = (newNode, key) => {
+  if (key) {
+    newNode = findAndReplaceKey(JSON.parse(JSON.stringify(currentNode)), "app", [], newNode);
+  } 
   if (currentNode == null) {
     currentNode = document.querySelector("#app");
   }

@@ -12,9 +12,8 @@ const List = props => (
 );
 const App = (props, updateDOM) => {
   function onClick() {
-    console.log(updateDOM(false))
     let newItem = ["beer", "cheese", "soup"][Math.floor(Math.random() * 2.999)];
-    updateDOM(App({ list: [...props.list, newItem] }, updateDOM));
+    updateDOM(App({ list: [...props.list, newItem] }, updateDOM), 'app');
   }
   return (
     <div key='app'>
